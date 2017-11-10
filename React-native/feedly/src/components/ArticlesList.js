@@ -38,12 +38,12 @@ export class ArticlesList extends React.Component {
 
     _onItemPressed(itemtitle, itemauthor, itemdescription, itemtopic){
         const { navigate } = this.props.navigation;
-        navigate('Details', { oldtitle: itemtitle, title: itemtitle, author: itemauthor, description: itemdescription, topic: itemtopic });
+        navigate('Details', { oldtitle: itemtitle, title: itemtitle, author: itemauthor, description: itemdescription, topic: itemtopic, isAdd: false});
     }
 
     _onPressButton = () => {
         const { navigate } = this.props.navigation;
-        navigate('Details');
+        navigate('Details',  {oldtitle: '', title: '', author: '', description: '', topic: '', isAdd: true});
     };
 
     getListData() {

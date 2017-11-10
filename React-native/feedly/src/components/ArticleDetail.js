@@ -11,27 +11,15 @@ export class ArticleDetail extends React.Component {
     constructor(props) {
         super(props);
         const pr = this.props.navigation.state.params;
-
-        if(pr.title !== ''){
-            this.state = {
-                oldtitle: pr.oldtitle,
-                title: pr.oldtitle,
-                description: pr.description,
-                author: pr.author,
-                topic: pr.topic,
-                isAdd: false
-            };
-        }
-        else{
-            this.state = {
-                oldtitle: '',
-                title: '',
-                description: '',
-                author: '',
-                topic: '',
-                isAdd: true
-            };
-        }
+        
+        this.state = {
+            oldtitle: pr.oldtitle,
+            title: pr.oldtitle,
+            description: pr.description,
+            author: pr.author,
+            topic: pr.topic,
+            isAdd: pr.isAdd
+        };
     }
 
     _onPressButton = () => {
