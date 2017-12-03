@@ -1,9 +1,10 @@
+import { AsyncStorage } from 'react-native';
 
-let articlesList = [
+let articlesListBoot = [
     {
         title: "Amazing news",
         description: "React app is working!",
-        author: "Me",
+        author: "Catri",
         topic: "React"
     },
     {
@@ -19,7 +20,7 @@ let articlesList = [
         topic: "Gaming"
     },
     {
-        title: "Test topic",
+        title: "Overwhelming amount of lab projects",
         description: "This is a description",
         author: "Bogdi",
         topic: "Other"
@@ -27,29 +28,48 @@ let articlesList = [
 ];
 
 export function getArticlesList() {
-    return articlesList;
+    return articlesListBoot;
 }
 
-export function getElementByTitle(title) {
-    return articlesList.find(a => a.title === title);
-}
+export async function editArticle(oldTitle, title, description, topic, author){
+    let response = await AsyncStorage.getItem('articleList'); 
+    let articleList = await JSON.parse(response);
 
-export function editArticle(oldTitle, title, description, topic){
-    let article = getElementByTitle(oldTitle);
+    let article = articleList.find(a => a.title === oldTitle);
+
     article.title = title;
     article.description = description;
     article.topic = topic;
+    article.author = author;
+
+    await AsyncStorage.setItem('articleList', JSON.stringify(articleList));
 }
 
-export function addArticle(newTitle, newAuthor, newDescription, newTopic){
+export async function addArticle(newTitle, newAuthor, newDescription, newTopic){
     const article = {
         title: newTitle,
         author: newAuthor,
         description: newDescription,
         topic: newTopic
     }
-    console.log(articlesList.length);
-    articlesList.push(article);
-    console.log(article);
-    console.log(articlesList.length);
+    let response = await AsyncStorage.getItem('articleList'); 
+    let articleList = await JSON.parse(response);
+
+    articleList.push(article);
+
+    await AsyncStorage.setItem('articleList', JSON.stringify(articleList));
+}
+
+export async function deleteArticle(title){
+    let response = await AsyncStorage.getItem('articleList'); 
+    let articleList = await JSON.parse(response);
+
+    let article = articleList.find(a => a.title === title);
+    let index = articleList.indexOf(article);
+
+    if (index > -1) {
+        articleList.splice(index, 1);
+    }
+
+    await AsyncStorage.setItem('articleList', JSON.stringify(articleList));
 }

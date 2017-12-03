@@ -1,6 +1,5 @@
 import React from 'react';
-import { View, Text, FlatList, Button } from 'react-native';
-import { getArticlesList } from '../repository/ArticleRepo';
+import { View, Text, FlatList, Button, AsyncStorage } from 'react-native';
 import { ArticleDetail } from './ArticleDetail';
 
 class ArticleListItem extends React.PureComponent {
@@ -21,7 +20,14 @@ export class ArticlesList extends React.Component {
 
     constructor(props) {
         super(props);
+        this.state = {
+            list : []
+        }
       }
+
+    componentDidMount(){
+        this.getListData();
+    }
 
     _keyExtractor = (item, index) => item.title;
 
@@ -46,12 +52,41 @@ export class ArticlesList extends React.Component {
         navigate('Details',  {oldtitle: '', title: '', author: '', description: '', topic: '', isAdd: true});
     };
 
-    getListData() {
-        return getArticlesList();
+    async getListData() {
+        let response = await AsyncStorage.getItem('articleList'); 
+        let articleList = await JSON.parse(response); 
+
+        if(!this._arraysEqual(this.state.list, articleList)){
+            this.setState({list: articleList});
+        }
+
+    }
+
+    _arraysEqual(array1, array2){
+        if (array1.length !== array2.length){
+            return false;
+        }
+
+        for(let i = 0; i < array1.length; i++){
+            if (! this._articleEqual(array1[i], array2[i])){
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    _articleEqual(art1, art2){
+        return art1.title === art2.title &&
+            art1.author === art2.author &&
+            art1.description === art2.description &&
+            art1.topic === art2.topic;
     }
 
     render() {
-        const articleList = this.getListData();
+        this.getListData();
+        const articleList = this.state.list;
+
         return (
             <View style={{alignItems: 'center'}}>
                 <Button
