@@ -1,8 +1,20 @@
 import React from 'react';
-import { View, Text, FlatList, TextInput, Button, Alert, Picker } from 'react-native';
+import { View, Text, FlatList, TextInput, Button, Alert, Picker, StyleSheet } from 'react-native';
 import { editArticle, addArticle, deleteArticle } from '../repository/ArticleRepo';
-import PopupDialog, { DialogTitle } from 'react-native-popup-dialog';
 import Communications from 'react-native-communications';
+import {ViewsChart} from './Chart';
+import Modal from 'react-native-modal';
+
+const styles = StyleSheet.create({
+    modalContent: {
+      backgroundColor: 'white',
+      padding: 22,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderRadius: 4,
+      borderColor: 'rgba(0, 0, 0, 0.1)',
+    }
+});
 
 export class ArticleDetail extends React.Component {
     static navigationOptions = {
@@ -19,7 +31,8 @@ export class ArticleDetail extends React.Component {
             description: pr.description,
             author: pr.author,
             topic: pr.topic,
-            isAdd: pr.isAdd
+            isAdd: pr.isAdd,
+            isModalVisible: false
         };
     }
 
@@ -62,6 +75,15 @@ export class ArticleDetail extends React.Component {
             />
         ;
 
+        const chartButton = !isAdd && 
+            <Button
+                onPress={() => {
+                this.setState({isModalVisible: true})
+            }}
+                title="View chart"
+                color="#3498DB"
+            />
+
         return (
             <View>
                 <Text style={{fontSize: 20, padding: 10}}>{"Title"}</Text>
@@ -73,7 +95,6 @@ export class ArticleDetail extends React.Component {
                 <Picker
                     selectedValue={this.state.author}
                     onValueChange={(itemValue, itemIndex) => {
-                        console.log(itemValue, itemIndex);
                         this.setState({author: itemValue});
                     }}>
                     <Picker.Item label="--- Select author ---" value="none" />
@@ -102,7 +123,26 @@ export class ArticleDetail extends React.Component {
 
                 {deleteButton}
 
+                {chartButton}
+
+                <Modal 
+                    isVisible={this.state.isModalVisible}
+                    animationIn={'slideInLeft'}
+                    animationOut={'slideOutRight'}
+                >
+                    <View style={styles.modalContent}>  
+                        <Text>Last week's number of visualizations</Text>
+                        <ViewsChart/>
+                        <Button
+                            onPress={() => {
+                            this.setState({isModalVisible: false})
+                        }}
+                        title="Close"
+                        />
+                    </View>
+                </Modal>
             </View>
         );
     }
+
 }
