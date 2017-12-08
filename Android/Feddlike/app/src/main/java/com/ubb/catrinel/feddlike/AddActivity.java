@@ -8,6 +8,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.ubb.catrinel.feddlike.Model.Article;
+
 public class AddActivity extends AppCompatActivity {
 
     @Override
@@ -18,13 +20,13 @@ public class AddActivity extends AppCompatActivity {
 
     public void addArticle(View view) {
         String errors = new String();
-        EditText titleEditText = (EditText) findViewById(R.id.title);
+        EditText titleEditText = findViewById(R.id.title);
 
-        EditText authorEditText = (EditText) findViewById(R.id.author);
+        EditText authorEditText = findViewById(R.id.author);
 
-        EditText topicEditText = (EditText) findViewById(R.id.topic);
+        EditText topicEditText = findViewById(R.id.topic);
 
-        EditText descriptionEditText = (EditText) findViewById(R.id.description);
+        EditText descriptionEditText = findViewById(R.id.description);
 
         if (topicEditText.getText().toString().matches("")) {
             errors += "You must enter a topic!\n";
@@ -43,18 +45,12 @@ public class AddActivity extends AppCompatActivity {
             Toast.makeText(this, errors, Toast.LENGTH_SHORT).show();
             return;
         }
-
-        Intent intent = new Intent(Intent.ACTION_SENDTO);
-        intent.setType("text/plain");
-        intent.setData(Uri.parse("mailto:"));
-        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"tipitza@gmail.com"});
-        intent.putExtra(Intent.EXTRA_SUBJECT, "Add article");
-        intent.putExtra(Intent.EXTRA_TEXT, authorEditText.getText() + " added a new article!" );
-        try {
-            startActivity(Intent.createChooser(intent, "Send mail using..."));
-        }catch (android.content.ActivityNotFoundException ex){
-            Toast.makeText(AddActivity.this, "There are no Email clients installed!", Toast.LENGTH_SHORT).show();
-        }
+        Intent intent = new Intent(AddActivity.this,MainActivity.class);
+        intent.putExtra("article",new Article(titleEditText.getText().toString(),
+                descriptionEditText.getText().toString(), authorEditText.getText().toString(),
+                    topicEditText.getText().toString()));
+        setResult(RESULT_OK,intent);
+        finish();
 
     }
 }

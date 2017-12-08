@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.ubb.catrinel.feddlike.Model.Article;
@@ -16,6 +17,7 @@ import java.util.List;
  */
 
 public class ArticleListAdapter extends ArrayAdapter<Article> {
+
     private Activity activity;
     private List<Article> articleList;
     private static LayoutInflater inflater = null;
@@ -29,18 +31,15 @@ public class ArticleListAdapter extends ArrayAdapter<Article> {
 
             inflater = activity.getLayoutInflater();
         }
-        catch (Exception  e){}
+        catch (Exception  e){
+            System.out.println(e.getMessage());
+        }
     }
 
 
     @Override
     public int getCount() {
         return articleList.size();
-    }
-
-
-    public Article getItem(Article position) {
-        return position;
     }
 
     @Override
@@ -53,7 +52,7 @@ public class ArticleListAdapter extends ArrayAdapter<Article> {
         public TextView display_title;
         public TextView display_author;
         public TextView separator;
-
+        //public Button removeButton;
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -64,9 +63,10 @@ public class ArticleListAdapter extends ArrayAdapter<Article> {
                 view = inflater.inflate(R.layout.list_item, null);
                 holder = new ViewHolder();
 
-                holder.display_title = (TextView) view.findViewById(R.id.articletitle);
-                holder.separator = (TextView) view.findViewById(R.id.separator);
-                holder.display_author = (TextView) view.findViewById(R.id.articleauthor);
+                holder.display_title = view.findViewById(R.id.articletitle);
+                holder.separator = view.findViewById(R.id.separator);
+                holder.display_author = view.findViewById(R.id.articleauthor);
+                //holder.removeButton = view.findViewById(R.id.deleteButton);
 
                 view.setTag(holder);
             } else {
@@ -81,5 +81,10 @@ public class ArticleListAdapter extends ArrayAdapter<Article> {
         }
 
         return view;
+    }
+
+    public void updateListView(List<Article> articles){
+        this.articleList = articles;
+        this.notifyDataSetChanged();
     }
 }

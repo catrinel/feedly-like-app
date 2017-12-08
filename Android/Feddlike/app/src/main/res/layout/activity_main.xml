@@ -38,7 +38,6 @@
         android:layout_width="88dp"
         android:layout_height="wrap_content"
         android:backgroundTint="@android:color/holo_green_light"
-        android:onClick="addArticle"
         android:text="Add"
         tools:layout_constraintRight_creator="1"
         tools:layout_constraintBottom_creator="1"

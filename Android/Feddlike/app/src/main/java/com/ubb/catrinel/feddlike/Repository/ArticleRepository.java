@@ -1,5 +1,9 @@
 package com.ubb.catrinel.feddlike.Repository;
 
+import android.arch.persistence.room.Room;
+import android.content.Context;
+
+import com.ubb.catrinel.feddlike.FeedlyConnection;
 import com.ubb.catrinel.feddlike.Model.Article;
 
 import java.util.ArrayList;
@@ -10,14 +14,16 @@ import java.util.List;
  */
 
 public class ArticleRepository {
-    private List<Article> articleList;
+    private final FeedlyConnection connection;
 
-    public ArticleRepository(List<Article> articleList) {
-        this.articleList = articleList;
-    }
+    /*public ArticleRepository(Context context) {
+        connection = Room.databaseBuilder(context, FeedlyConnection.class,"feedlyDB")
+                .allowMainThreadQueries().build();
+    }*/
 
-    public ArticleRepository() {
-        this.articleList = new ArrayList<>();
+    public ArticleRepository(Context context) {
+        connection = Room.databaseBuilder(context, FeedlyConnection.class,"feedlyDB")
+                .allowMainThreadQueries().fallbackToDestructiveMigration().build();
         Article article1 = new Article("Spring Boot", "Spring Boot is designed to get you up and running" +
                 " as quickly as possible, with minimal upfront configuration of Spring. Spring Boot takes " +
                 "an opinionated view of building production ready applications.",
@@ -34,36 +40,30 @@ public class ArticleRepository {
                 "PlayStation Blog", "Gaming");
         Article article4 = new Article("Test article", "Some text here", "Me", "Other");
 
-        this.articleList.add(article1);
-        this.articleList.add(article2);
-        this.articleList.add(article3);
-        this.articleList.add(article4);
+        connection.articleDAO().deleteAll();
+        connection.articleDAO().insert(article1);
+        connection.articleDAO().insert(article2);
+        connection.articleDAO().insert(article3);
+        connection.articleDAO().insert(article4);
     }
 
-    public int findByTitle(String title){
-        for(int i = 0; i < articleList.size(); i++){
-            if (articleList.get(i).getTitle().equals(title))
-                return i;
-        }
-        return -1;
+    public Article findById(Integer id){
+        return connection.articleDAO().findById(id);
     }
 
     public List<Article> getArticleList() {
-        return articleList;
+        return connection.articleDAO().getAll();
     }
 
-    public void setArticleList(List<Article> articleList) {
-        this.articleList = articleList;
+    public void add(Article article){
+        connection.articleDAO().insert(article);
     }
 
-    public void updateArticle(String oldTitle, String title, String description, String author, String topic){
-        int position = this.findByTitle(oldTitle);
-        if (position!= -1){
-            Article article = this.getArticleList().get(position);
-            article.setAuthor(author);
-            article.setDescription(description);
-            article.setTitle(title);
-            article.setTopic(topic);
-        }
+    public void remove(Article article){
+        connection.articleDAO().delete(article);
+    }
+
+    public void update(Article article){
+        connection.articleDAO().update(article);
     }
 }

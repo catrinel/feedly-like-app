@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Feddlike</string>
+    <string name="x">X</string>
+    <string name="rate_this_article">Rate this article:</string>
 </resources>
