@@ -11,10 +11,8 @@ import java.util.List;
  * Created by User on 11/5/2017.
  */
 
-@Entity(tableName = "article")
 public class Article implements Serializable{
 
-    @PrimaryKey(autoGenerate = true)
     private Integer id;
     private String title;
     private String description;
@@ -37,12 +35,32 @@ public class Article implements Serializable{
         this.history = rating.toString();
     }
 
-    public Article(Integer id, String title, String description, String author, String topic) {
+    public Article(Integer id,String title, String description, String author, String topic) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.author = author;
         this.topic = topic;
+        rating = 0.0;
+        this.history = rating.toString();
+    }
+
+    /*public Article(Integer id, String title, String description, String author, String topic) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.author = author;
+        this.topic = topic;
+    }*/
+
+    public void setData(Article article){
+        this.id = article.getId();
+        this.description = article.getDescription();
+        this.rating = article.getRating();
+        this.author = article.getAuthor();
+        this.title = article.getTitle();
+        this.topic = article.getTopic();
+        this.history = article.getHistory();
     }
 
     public Integer getId() {
@@ -90,17 +108,13 @@ public class Article implements Serializable{
     }
 
     public void setRating(Double rating) {
-        if(this.rating==0.0){
-            this.rating = rating;
-            history=";" + this.rating.toString();
-        }
         if(!this.rating.equals(rating)){
             this.rating = (this.rating+rating)/2.0;
-            history+=";" + this.rating.toString();
         }
+        history+=";" + rating.toString();
     }
 
-    public List<Double> getRatings(){
+    public List<Double> allRatings(){
         List<Double> ratings = new ArrayList<>();
         String[] tokens = history.split(";");
         for (String token : tokens)
@@ -108,12 +122,16 @@ public class Article implements Serializable{
         return ratings;
     }
 
-    public String getHistory() {
+    String getHistory() {
         return history;
     }
 
-    public void setHistory(String history) {
+    void setHistory(String history) {
         this.history = history;
+    }
+
+    public boolean empty(){
+        return title==null && description==null && author==null;
     }
 
     @Override

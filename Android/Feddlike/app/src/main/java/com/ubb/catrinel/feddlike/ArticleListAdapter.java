@@ -20,6 +20,7 @@ public class ArticleListAdapter extends ArrayAdapter<Article> {
 
     private Activity activity;
     private List<Article> articleList;
+    private int resource;
     private static LayoutInflater inflater = null;
 
 
@@ -28,6 +29,7 @@ public class ArticleListAdapter extends ArrayAdapter<Article> {
         try{
             this.activity = activity;
             this.articleList = articleList;
+            this.resource = resource;
 
             inflater = activity.getLayoutInflater();
         }
@@ -52,7 +54,6 @@ public class ArticleListAdapter extends ArrayAdapter<Article> {
         public TextView display_title;
         public TextView display_author;
         public TextView separator;
-        //public Button removeButton;
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -60,13 +61,12 @@ public class ArticleListAdapter extends ArrayAdapter<Article> {
         final ViewHolder holder;
         try {
             if (convertView == null) {
-                view = inflater.inflate(R.layout.list_item, null);
+                view = inflater.inflate(resource, null);
                 holder = new ViewHolder();
 
                 holder.display_title = view.findViewById(R.id.articletitle);
                 holder.separator = view.findViewById(R.id.separator);
                 holder.display_author = view.findViewById(R.id.articleauthor);
-                //holder.removeButton = view.findViewById(R.id.deleteButton);
 
                 view.setTag(holder);
             } else {

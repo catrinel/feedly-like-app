@@ -15,7 +15,6 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.ubb.catrinel.feddlike.Model.Article;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -60,7 +59,7 @@ public class DetailsActivity extends AppCompatActivity {
         chart.setDescription(description);
 
         int x = 0;
-        List<Double> data = article.getRatings();
+        List<Double> data = article.allRatings();
         List<Entry> entries = new ArrayList<>();
         for(Double p : data)
             entries.add(new Entry(x++,p.floatValue()));
