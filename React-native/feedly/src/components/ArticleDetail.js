@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, FlatList, TextInput, Button, Alert, Picker, StyleSheet } from 'react-native';
-import { editArticle, addArticle, deleteArticle } from '../repository/ArticleRepo';
+import { View, Text, FlatList, TextInput, Button, Alert, Picker, StyleSheet, AsyncStorage } from 'react-native';
 import Communications from 'react-native-communications';
 import {ViewsChart} from './Chart';
+import * as firebase from 'firebase';
 import Modal from 'react-native-modal';
 
 const styles = StyleSheet.create({
@@ -23,41 +23,87 @@ export class ArticleDetail extends React.Component {
 
     constructor(props) {
         super(props);
-        const pr = this.props.navigation.state.params;
+        const item = this.props.navigation.state.params.item;
         
         this.state = {
-            oldtitle: pr.oldtitle,
-            title: pr.oldtitle,
-            description: pr.description,
-            author: pr.author,
-            topic: pr.topic,
-            isAdd: pr.isAdd,
-            isModalVisible: false
+            id: item.id,
+            title: item.title,
+            author: item.author,
+            description: item.description,
+            history: item.history,
+            topic: item.topic,
+            rating: JSON.stringify(item.rating),
+            isAdd: this.props.navigation.state.params.isAdd,
+            isModalVisible: false,
+            userRole: ''
         };
     }
 
-    _onPressButton = () => {
-        if (this.state.isAdd){
-            addArticle(this.state.title, this.state.author, this.state.description, this.state.topic);
-            Communications.email(['tipitza@gmail.com'], null, null, 'New article: ' + this.state.title, this.state.author + ' added a new article!');
-        }
-        else{
-            editArticle(this.state.oldtitle, this.state.title, this.state.description, this.state.topic, this.state.author);
-        }
-        const { navigate } = this.props.navigation;
-        navigate('Main');
-    };
-    
-    _delete = () => {
-        deleteArticle(this.state.oldtitle);
-        const { navigate } = this.props.navigation;
-        navigate('Main');
+    componentDidMount() {
+        AsyncStorage.getItem('userRole').then((userRole) => {
+            this.setState({userRole});
+        });
     }
+
+    _onPressButton = () => {
+        this.state.isAdd ? this.addArticle() : this.updateArticle();
+        
+    };
+
+    addArticle() {
+        var newKey = firebase.database().ref().child('article').push().key;
+		
+		firebase.database().ref().child('article').child(newKey).set({
+            title: this.state.title,
+            author: this.state.author, 
+            description: this.state.description, 
+            topic: this.state.topic, 
+            rating: parseFloat(this.state.rating),
+			id: newKey,
+			history: this.state.rating
+          })
+        .then(() => {
+            Communications
+                .email(['tipitza@gmail.com'], null, null, 'New article: ' + this.state.title, this.state.author + ' added a new article!');
+            const { navigate } = this.props.navigation;
+            navigate('List');
+        });
+    }
+
+    updateArticle() {
+        firebase.database().ref().child('article').child(this.state.id).set({
+            title: this.state.title,
+            author: this.state.author, 
+            description: this.state.description, 
+            topic: this.state.topic, 
+            rating: parseFloat(this.state.rating),
+			id: this.state.id,
+			history: this.state.history + ';' + this.state.rating
+          })
+        .then(() => {
+            const { navigate } = this.props.navigation;
+            navigate('List');
+        });
+    }
+
+    _delete() {
+        firebase.database().ref().child('medicine').child(this.state.id)
+        .remove()
+        .then(() => {
+            const { navigate } = this.props.navigation;
+            navigate('List');
+        });
+    }
+
+    formatHistory(history) {
+        let result = this.state.history.split(';');
+        return result = result.map(h => parseFloat(h));
+	}
 
     render() {
         const { isAdd } = this.state;
         const buttonText = isAdd ? "Add" : "Save";
-        const deleteButton = !isAdd && 
+        const deleteButton = !isAdd && this.state.userRole === 'ADMIN' && (
             <Button
                 onPress={() => {
                     Alert.alert(
@@ -73,7 +119,15 @@ export class ArticleDetail extends React.Component {
                 title="Delete"
                 color="#C70039"
             />
-        ;
+        );
+
+        const saveButton = this.state.userRole === 'ADMIN' && (
+            <Button
+                onPress={this._onPressButton}
+                title={buttonText}
+                color="#bada55"
+            />
+        );
 
         const chartButton = !isAdd && 
             <Button
@@ -86,12 +140,12 @@ export class ArticleDetail extends React.Component {
 
         return (
             <View>
-                <Text style={{fontSize: 20, padding: 10}}>{"Title"}</Text>
-                <TextInput style={{fontSize: 22, padding: 10}}
+                <Text style={{fontSize: 15, padding: 5}}>{"Title"}</Text>
+                <TextInput style={{fontSize: 18, padding: 10}}
                     onChangeText={(title) => this.setState({title})}
                     value={this.state.title}
                 ></TextInput>
-                <Text style={{fontSize: 20, padding: 10}}>{"Author"}</Text>
+                <Text style={{fontSize: 15, padding: 5}}>{"Author"}</Text>
                 <Picker
                     selectedValue={this.state.author}
                     onValueChange={(itemValue, itemIndex) => {
@@ -102,24 +156,28 @@ export class ArticleDetail extends React.Component {
                     <Picker.Item label="Catri" value="Catri" />
                     <Picker.Item label="PS Blog" value="PS Blog" />
                     <Picker.Item label="Riot" value="Riot" />
+                    <Picker.Item label="fubiz" value="fubiz" />
+                    <Picker.Item label="spring.io" value="spring.io" />
                 </Picker>
 
-                <Text style={{fontSize: 20, padding: 10}}>{"Topic"}</Text>
-                <TextInput style={{fontSize: 22, padding: 10}}
+                <Text style={{fontSize: 15, padding: 5}}>{"Topic"}</Text>
+                <TextInput style={{fontSize: 18, padding: 10}}
                     onChangeText={(topic) => this.setState({topic})}
                     value={this.state.topic}
                 ></TextInput>
-                <Text style={{fontSize: 20, padding: 10}}>{"Description"}</Text>
-                <TextInput style={{fontSize: 22, padding: 10, marginBottom: 50}}
+                <Text style={{fontSize: 15, padding: 5}}>{"Description"}</Text>
+                <TextInput style={{fontSize: 18, padding: 10, marginBottom: 30}}
                     onChangeText={(description) => this.setState({description})}
                     value={this.state.description}
                 ></TextInput>
+
+                <Text style={{fontSize: 15, padding: 5}}>{"Rating"}</Text>
+                <TextInput style={{fontSize: 18, padding: 10}}
+                    onChangeText={(rating) => this.setState({rating})}
+                    value={this.state.rating}
+                ></TextInput>
                
-                <Button
-                    onPress={this._onPressButton}
-                    title={buttonText}
-                    color="#bada55"
-                />
+                {saveButton}
 
                 {deleteButton}
 
@@ -131,8 +189,8 @@ export class ArticleDetail extends React.Component {
                     animationOut={'slideOutRight'}
                 >
                     <View style={styles.modalContent}>  
-                        <Text>Last week's number of visualizations</Text>
-                        <ViewsChart/>
+                        <Text>Rating evolution</Text>
+                        <ViewsChart list={this.formatHistory(this.state.history)}/>
                         <Button
                             onPress={() => {
                             this.setState({isModalVisible: false})

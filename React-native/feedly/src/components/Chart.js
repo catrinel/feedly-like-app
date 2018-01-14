@@ -5,34 +5,26 @@ import { Bar } from 'react-native-pathjs-charts'
 
 export class ViewsChart extends React.Component {
 
+  constructor(props){
+    super(props);
+}
+
 render() {
-    let data = [
-      [{
-        "v": Math.random()*100,
-        "name": "monday"
-      }, {
-        "v": Math.random()*100,
-        "name": "tuesday"
-      },
-      {
-        "v": Math.random()*100,
-        "name": "wednesday"
-      }, {
-        "v": Math.random()*100,
-        "name": "thursday"
-      },
-      {
-        "v": Math.random()*100,
-        "name": "friday"
-      }, {
-        "v": Math.random()*100,
-        "name": "saturday"
-      },
-      {
-        "v": Math.random()*100,
-        "name": "sunday"
-      }]
-    ]
+  if (this.props.list.length === 0){
+    return (<Text>No rating history</Text>);
+  }
+
+  let chartData = this.props.list.map(rating => {
+      return {
+          "v" : rating,
+          "name": ""
+      };
+  });
+
+  chartData[0].name = "rating";
+
+  let data = [];
+  data.push(chartData);
   
     let options = {
       width: 300,
